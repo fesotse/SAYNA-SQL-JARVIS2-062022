@@ -1,0 +1,1 @@
+select id_domicile,prenom_u,nom_u from utilisateur,contenir,domicile where utilisateur.id_u = contenir.utilisateur_id_u and contenir.Domicile_id_domicile= domicile.id_domicile order by id_domicile ASC

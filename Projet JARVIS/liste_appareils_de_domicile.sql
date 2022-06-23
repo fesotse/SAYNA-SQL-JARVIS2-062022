@@ -1,0 +1,1 @@
+select id_domicile,nom_appareil,type_appareil from domicile,piece,appareils where domicile.id_domicile= piece.Domicile_id_domicile and piece.id_piece=appareils.Piece_id_piece order by id_domicile ASC
