@@ -1,3 +1,4 @@
+-- trigger pour l'affectation des roles des utilisateurs
 DELIMITER |
 CREATE trigger utilisateur_affectation /* creation du trigger d'affectation des roles tels que si lien = 0 c'est membre et si lien = 1 c'est copropriétaire*/ 
 AFTER INSERT ON utilisateur
@@ -11,7 +12,7 @@ values (new.id_u);
 END IF;
 end
 |
-
+-- trigger pour l'affectation des roles des utilisateurs après update
 DELIMITER |
 CREATE trigger utilisateur_affectation_updater
 AFTER update ON utilisateur
@@ -25,19 +26,24 @@ values (new.id_u);
 END IF;
 end
 |
+
+/* creation de vieuw pour la liste de tous les utilisateur*/
+create view utilisateur_domicile_vw as
+SELECT * FROM contenir
+right join utilisateur
+on contenir.utilisateur_id_u = utilisateur.id_u
+order by Domicile_id_domicile,lien_parent desc; -- cette table sera utilisée dans le trigger
+
+-- trigger pour la suppression de domicile ou non
 delimiter //
 create trigger proprio_suppression
-after delete on propriétaire
+before delete on propriétaire
 for each row 
-create table if not exists C as select * from copropriétaire limit 1; -- selection de la première élément dans la table copropriétaire
-create table if not exists M as select * from membre limit 1; -- selection de la première élément dans la table membre
-DECLARE C_quantity DECIMAL, /*declaration de variable*/
-M_quantity DECIMAL; /*declaration de variable*/
-SET C_quantity =SELECT count(*) from C , M_quantity = SELECT count(*) from M
-
-if (C_quantity =1) then /*vérifier que la sélection est non null mais ERREUR à fixer ici*/
+where 
+ -- check id domicile proprio = id domicile utilisateur2
+if ((C-> not isEmpty )) then /*vérifier que la sélection est non null mais ERREUR à fixer ici*/
 insert into propriétaire(utilisateur_id_u) values (I.utilisateur_id_u);
-elseif ((C_quantity=0) and (M_quantity=1)) then 
+elseif (empty(C_quantity)) and (!empty(M_quantity)) then 
 insert into propriétaire(utilisateur_id_u)
 values (M.utilisateur_id_u);
 else truncate domicile;
